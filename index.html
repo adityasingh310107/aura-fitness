@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura - AI-Powered Fitness Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
+    <style>
+        :root {
+            --primary: #0066ff;
+            --secondary: #00cc99;
+            --accent: #ff6b6b;
+            --dark: #121212;
+            --darker: #0a0a0a;
+            --light: #f8f9fa;
+            --gray: #2a2a2a;
+            --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+            --gradient-accent: linear-gradient(135deg, var(--primary), var(--accent));
+            --card-bg: rgba(42, 42, 42, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 15% 50%, rgba(0, 102, 255, 0.1), transparent 25%),
+                        radial-gradient(circle at 85% 30%, rgba(0, 204, 153, 0.1), transparent 25%);
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        h1, h2, h3, h4, h5 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-padding {
+            padding: 6rem 0;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        .animate-on-scroll.animated {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Particles Background */
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--gradient);
+            opacity: 0.3;
+            animation: float 15s infinite ease-in-out;
+        }
+        
+        /* Header & Navigation */
+        header {
+            background-color: rgba(18, 18, 18, 0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            padding: 1rem 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+        }
+        
+        header.scrolled {
+            padding: 0.7rem 0;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--light);
+            text-decoration: none;
+        }
+        
+        .logo-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+        
+        .nav-links a:not(.upgrade-nav-button)::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-links a:not(.upgrade-nav-button):hover::after {
+            width: 100%;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .upgrade-nav-button {
+            background: var(--gradient);
+            color: white !important;
+            padding: 0.6rem 1.2rem;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .upgrade-nav-button:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 102, 255, 0.4);
+            background: var(--gradient-accent);
+        }
+        
+        .upgrade-nav-button .fa-crown {
+            color: gold;
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .cta-button {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.8rem;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 102, 255, 0.4);
+        }
+        
+        .cta-button:hover::before {
+            left: 100%;
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 10rem 0 5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-content {
+            display: flex;
+            align-items: center;
+            gap: 3rem;
+        }
+        
+        .hero-text {
+            flex: 1;
+            z-index: 2;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            animation: slideUp 1s ease-out forwards;
+        }
+        
+        .hero-title span {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2.5rem;
+            color: #ccc;
+            max-width: 90%;
+        }
+        
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .hero-demo {
+            flex: 1;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .demo-container {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+        }
+        
+        .demo-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+        
+        .demo-screen {
+            background: var(--dark);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            height: 480px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .demo-screen video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        
+        .hero-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: var(--gradient);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            animation: pulse 2s infinite;
+        }
+        
+        /* Features Section */
+        .features {
+            position: relative;
+            background-color: rgba(18, 18, 18, 0.7);
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            animation: slideUp 1s ease-out forwards;
+        }
+        
+        .section-title span {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            color: #ccc;
+            font-size: 1.1rem;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 2.5rem 2rem;
+            transition: var(--transition);
+            border: 1px solid var(--card-border);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .feature-icon {
+            background: var(--gradient);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            transition: var(--transition);
+        }
+        
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+        
+        .feature-title {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+        
+        /* How It Works */
+        .how-it-works {
+            position: relative;
+        }
+        
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+            position: relative;
+        }
+        
+        .steps::before {
+            content: '';
+            position: absolute;
+            top: 25px;
+            left: 10%;
+            width: 80%;
+            height: 2px;
+            background: var(--gray);
+            z-index: -1;
+        }
+        
+        .step {
+            flex: 1;
+            min-width: 220px;
+            text-align: center;
+            padding: 0 1rem;
+            position: relative;
+        }
+        
+        .step-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 auto 1.5rem;
+            transition: var(--transition);
+        }
+        
+        .step:hover .step-number {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 102, 255, 0.3);
+        }
+        
+        /* Senior Fitness Section */
+        .senior-fitness {
+            background-color: rgba(18, 18, 18, 0.7);
+            position: relative;
+        }
+        
+        .senior-features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        /* Testimonials */
+        .testimonials {
+            background-color: rgba(18, 18, 18, 0.7);
+            position: relative;
+        }
+        
+        .testimonials-slider {
+            padding: 2rem 0;
+        }
+        
+        .testimonial-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 2.5rem;
+            border: 1px solid var(--card-border);
+            margin: 1rem;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+            height: auto;
+        }
+        
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .testimonial-text {
+            font-style: italic;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        
+        .testimonial-text::before {
+            content: """;
+            position: absolute;
+            left: 0;
+            top: -10px;
+            font-size: 3rem;
+            color: var(--primary);
+            font-family: Arial, sans-serif;
+        }
+        
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        
+        .swiper-pagination-bullet {
+            background: var(--light);
+            opacity: 0.5;
+            width: 10px;
+            height: 10px;
+            transition: var(--transition);
+        }
+        
+        .swiper-pagination-bullet-active {
+            background: var(--primary);
+            opacity: 1;
+            transform: scale(1.2);
+        }
+        
+        /* Team Section */
+        .team {
+            position: relative;
+        }
+        
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .team-member {
+            text-align: center;
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid var(--card-border);
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+        }
+        
+        .team-member:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .team-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1.5rem;
+            border: 4px solid var(--primary);
+            box-shadow: 0 0 20px rgba(0, 102, 255, 0.5);
+            transition: var(--transition);
+        }
+        
+        .team-member:hover .team-photo {
+            border-color: var(--secondary);
+            box-shadow: 0 0 25px rgba(0, 204, 153, 0.7);
+        }
+        
+        .team-member h3 {
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+        }
+        
+        .team-member p {
+            color: #ccc;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            min-height: 60px;
+        }
+        
+        .social-link {
+            display: inline-block;
+            color: var(--light);
+            font-size: 1.3rem;
+            transition: var(--transition);
+            margin: 0 0.3rem;
+        }
+        
+        .social-link:hover {
+            color: var(--primary);
+            transform: translateY(-3px);
+        }
+        
+        /* SOS Section */
+        .SOS {
+            text-align: center;
+            background: var(--darker);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .SOS::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(255, 107, 107, 0.1), transparent 70%);
+            z-index: 0;
+        }
+        
+        .SOS .container {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .sos-feature {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 15px;
+            border-left: 4px solid var(--accent);
+        }
+        
+        .sos-icon {
+            font-size: 2rem;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+        
+        /* Upgrade Section */
+        .upgrade-section {
+            text-align: center;
+            background: var(--gray);
+            position: relative;
+        }
+        
+        .pricing-cards {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+        
+        .pricing-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 2.5rem 2rem;
+            border: 1px solid var(--card-border);
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+            width: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pricing-card.popular {
+            border-color: var(--primary);
+            transform: scale(1.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+        
+        .pricing-card.popular::before {
+            content: 'MOST POPULAR';
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--gradient);
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            border-radius: 0 15px 0 15px;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+        
+        .pricing-card.popular:hover {
+            transform: scale(1.05) translateY(-10px);
+        }
+        
+        .price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 1.5rem 0;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .price span {
+            font-size: 1rem;
+            color: #ccc;
+        }
+        
+        .pricing-features {
+            list-style: none;
+            text-align: left;
+            margin: 1.5rem 0;
+        }
+        
+        .pricing-features li {
+            padding: 0.5rem 0;
+            color: #ccc;
+            display: flex;
+            align-items: center;
+        }
+        
+        .pricing-features li i {
+            color: var(--secondary);
+            margin-right: 0.5rem;
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            background: radial-gradient(circle at center, rgba(0, 102, 255, 0.1), transparent 70%);
+            position: relative;
+        }
+        
+        .cta-title {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .secondary-button {
+            background: transparent;
+            color: var(--light);
+            border: 2px solid var(--primary);
+            padding: 0.8rem 1.8rem;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .secondary-button:hover {
+            background: rgba(0, 102, 255, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .app-badges {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .app-badge {
+            background: var(--card-bg);
+            padding: 0.7rem 1.5rem;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            text-decoration: none;
+            color: var(--light);
+            transition: var(--transition);
+            border: 1px solid var(--card-border);
+        }
+        
+        .app-badge:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border-color: var(--primary);
+        }
+        
+        .app-badge i {
+            font-size: 1.5rem;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--darker);
+            padding: 4rem 0 2rem;
+            position: relative;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        
+        .footer-column {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .footer-title {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+        
+        .footer-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 30px;
+            height: 2px;
+            background: var(--gradient);
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+        
+        .footer-links a {
+            color: #ccc;
+            text-decoration: none;
+            transition: var(--transition);
+            display: inline-block;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary);
+            transform: translateX(5px);
+        }
+        
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            color: var(--light);
+            text-decoration: none;
+        }
+        
+        .social-icon:hover {
+            background: var(--gradient);
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            text-align: center;
+            margin-top: 4rem;
+            color: #666;
+            font-size: 0.9rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--gray);
+        }
+        
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+            opacity: 0;
+            visibility: hidden;
+            z-index: 999;
+        }
+        
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Popup Modal Styles */
+        .upgrade-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s forwards;
+            padding: 1rem;
+        }
+
+        .upgrade-modal {
+            background: var(--dark);
+            border-radius: 20px;
+            padding: 2.5rem;
+            width: 90%;
+            max-width: 900px;
+            display: flex;
+            gap: 2rem;
+            position: relative;
+            transform: scale(0.9);
+            opacity: 0;
+            animation: scaleIn 0.3s forwards 0.3s;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-left {
+            flex: 1;
+            padding-right: 2rem;
+        }
+        
+        .modal-left h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .modal-right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-right img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            max-height: 400px;
+            object-fit: cover;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            color: #fff;
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        
+        .close-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .plan-details {
+            margin-top: 1.5rem;
+        }
+        
+        .plan-details h3 {
+            margin-top: 1.5rem;
+            font-size: 1.2rem;
+            color: var(--light);
+        }
+        
+        .plan-details ul {
+            list-style-type: none;
+            margin-top: 0.5rem;
+            padding-left: 0;
+        }
+        
+        .plan-details ul li {
+            padding: 0.5rem 0;
+            color: #ccc;
+            display: flex;
+            align-items: center;
+        }
+        
+        .plan-details ul li i {
+            color: var(--secondary);
+            margin-right: 0.5rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .hero-title {
+                font-size: 3rem;
+            }
+            
+            .steps::before {
+                display: none;
+            }
+            
+            .steps {
+                flex-direction: column;
+                gap: 2rem;
+            }
+            
+            .step {
+                min-width: 100%;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .hero-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .hero-subtitle {
+                max-width: 100%;
+            }
+            
+            .hero-cta {
+                justify-content: center;
+            }
+            
+            .upgrade-modal {
+                flex-direction: column;
+            }
+            
+            .modal-left {
+                padding-right: 0;
+                padding-bottom: 1.5rem;
+                border-right: none;
+                border-bottom: 1px solid var(--gray);
+            }
+            
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                height: 100vh;
+                width: 70%;
+                background: var(--darker);
+                flex-direction: column;
+                justify-content: center;
+                gap: 2rem;
+                transition: var(--transition);
+                z-index: 1001;
+                box-shadow: -5px 0 25px rgba(0, 0, 0, 0.2);
+            }
+            
+            .nav-links.active {
+                right: 0;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+                z-index: 1002;
+            }
+            
+            .mobile-menu-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.7);
+                backdrop-filter: blur(5px);
+                z-index: 1000;
+                opacity: 0;
+                visibility: hidden;
+                transition: var(--transition);
+            }
+            
+            .mobile-menu-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .hero {
+                padding: 8rem 0 3rem;
+            }
+            
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .pricing-card.popular {
+                transform: scale(1);
+            }
+            
+            .pricing-card.popular:hover {
+                transform: translateY(-10px);
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 2.5rem;
+            }
+            
+            .testimonial-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Particles Background -->
+    <div class="particles-container" id="particles"></div>
+
+    <header id="header">
+        <div class="container">
+            <nav>
+                <a href="#" class="logo">
+                    <div class="logo-img">A</div>
+                    <span>Aura</span>
+                </a>
+                <div class="nav-links" id="navLinks">
+                    <a href="#home">Home</a>
+                    <a href="#features">Features</a>
+                    <a href="#how-it-works">How It Works</a>
+                    <a href="#senior-fitness">Senior Fitness</a>
+                    <a href="#testimonials">Testimonials</a>
+                    <a href="#developers">Developers</a>
+                    <a href="#media">Media</a>
+                    <a href="#download">Download</a>
+                    <a href="#upgrade-section" class="upgrade-nav-button"><i class="fas fa-crown"></i> Upgrade To PRO</a>
+                </div>
+                <button class="mobile-menu-btn" id="menuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="mobile-menu-overlay" id="menuOverlay"></div>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">Transform Your Workout with <span>AI Precision</span></h1>
+                    <p class="hero-subtitle">Aura is the world's first adaptive fitness assistant that corrects your form in real-time, counts your reps automatically, and helps you avoid injuries while maximizing results.</p>
+                    <div class="hero-cta">
+                        <a href="pose-coach.html" class="cta-button">Start Free Trial</a>
+                        <a href="#features" class="secondary-button">Explore Features</a>
+                    </div>
+                </div>
+                <div class="hero-demo">
+                    <div class="demo-container">
+                        <div class="demo-screen">
+                            <video autoplay loop muted playsinline poster="https://placehold.co/600x400/2a2a2a/ffffff?text=Aura+AI+Fitness">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                        <div class="hero-badge">AI Powered</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features section-padding" id="features">
+        <div class="container">
+            <h2 class="section-title">Powerful <span>Features</span></h2>
+            <p class="section-subtitle">Discover how Aura's advanced AI technology revolutionizes your workout experience</p>
+            <div class="features-grid">
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="feature-title">Real-Time Posture Correction</h3>
+                    <p>Our advanced AI analyzes your movement patterns and provides instant feedback on your form to prevent injuries and maximize effectiveness.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <h3 class="feature-title">Automatic Rep Counting</h3>
+                    <p>Never lose count again. Aura automatically tracks and records your repetitions with 99% accuracy, so you can focus on your workout.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3 class="feature-title">Smart Form Alerts</h3>
+                    <p>Get immediate notifications when your form is compromised. Our AI detects even subtle deviations that could lead to injury.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-it-works section-padding" id="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How <span>Aura</span> Works</h2>
+            <p class="section-subtitle">Getting started with your AI fitness assistant is simple and intuitive</p>
+            <div class="steps">
+                <div class="step animate-on-scroll">
+                    <div class="step-number">1</div>
+                    <h3>Set Up Your Device</h3>
+                    <p>Place your phone or tablet where you have a clear view of your workout area.</p>
+                </div>
+                <div class="step animate-on-scroll">
+                    <div class="step-number">2</div>
+                    <h3>Select Your Workout</h3>
+                    <p>Choose from hundreds of exercises or create your own custom routine.</p>
+                </div>
+                <div class="step animate-on-scroll">
+                    <div class="step-number">3</div>
+                    <h3>Start Training</h3>
+                    <p>Aura will guide you through each exercise with real-time feedback and rep counting.</p>
+                </div>
+                <div class="step animate-on-scroll">
+                    <div class="step-number">4</div>
+                    <h3>Track Progress</h3>
+                    <p>Review your performance metrics and see your improvements over time.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="senior-fitness section-padding" id="senior-fitness">
+        <div class="container">
+            <h2 class="section-title">Fitness for <span>Senior Citizens</span></h2>
+            <p class="section-subtitle">Aura provides a safe and effective way for seniors to stay active, improve mobility, and maintain independence. Our AI adapts to your needs with gentle, low-impact routines.</p>
+            <div class="senior-features-grid">
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">
+                        <i class="fas fa-hand-holding-heart"></i>
+                    </div>
+                    <h3 class="feature-title">Low-Impact Routines</h3>
+                    <p>Access a library of exercises designed for joint health and reduced strain, including yoga, stretching, and tai chi.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">
+                        <i class="fas fa-running"></i>
+                    </div>
+                    <h3 class="feature-title">Balance & Mobility Coaching</h3>
+                    <p>Our AI provides targeted feedback to help you improve stability and coordination, reducing the risk of falls.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3 class="feature-title">Voice-Guided Workouts</h3>
+                    <p>Follow along with clear, simple instructions and audio cues, so you don't need to constantly look at the screen.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="testimonials section-padding" id="testimonials">
+        <div class="container">
+            <h2 class="section-title">What <span>Users</span> Say</h2>
+            <p class="section-subtitle">Hear from our community of fitness enthusiasts who have transformed their workouts with Aura</p>
+            
+            <div class="testimonials-slider swiper">
+                <div class="swiper-wrapper">
+                    <div class="testimonial-card swiper-slide">
+                        <p class="testimonial-text">"Aura completely transformed my home workouts. The form corrections helped me fix my squat technique that I've been doing wrong for years!"</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">M</div>
+                            <div>
+                                <h4>Jyento Mukherjee</h4>
+                                <p>Fitness Enthusiast</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card swiper-slide">
+                        <p class="testimonial-text">"As a personal trainer, I recommend Aura to all my clients. It's like having a trainer with you 24/7. The rep counting is incredibly accurate."</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">S</div>
+                            <div>
+                                <h4>Akash Debnath</h4>
+                                <p>Certified Personal Trainer</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card swiper-slide">
+                        <p class="testimonial-text">"I've struggled with consistency in my workouts, but Aura keeps me motivated with its real-time feedback and progress tracking. Love the sleek design too!"</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">J</div>
+                            <div>
+                                <h4>Surendre Das</h4>
+                                <p>Working Professional</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card swiper-slide">
+                        <p class="testimonial-text">"The senior fitness program has been a game-changer for my mobility. At 72, I feel stronger and more balanced than I have in years."</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">E</div>
+                            <div>
+                                <h4>Margaret Williams</h4>
+                                <p>Senior User</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper-pagination"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="team section-padding" id="developers">
+        <div class="container">
+            <h2 class="section-title">Meet Our <span>Developers</span></h2>
+            <p class="section-subtitle">The talented team behind Aura's innovative technology</p>
+            <div class="team-grid">
+                <div class="team-member animate-on-scroll">
+                    <img src="https://placehold.co/150x150/2a2a2a/ffffff?text=AS" alt="Aditya Singh" class="team-photo">
+                    <h3>Aditya Singh</h3>
+                    <p>Frontend Developer – UI/UX, Responsive Design & Interactive Web Interfaces</p>
+                    <a href="https://www.linkedin.com/in/aditya-singh-91136b380/" class="social-link" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                </div>
+                <div class="team-member animate-on-scroll">
+                    <img src="https://placehold.co/150x150/2a2a2a/ffffff?text=NT" alt="Naman Kumar Tiwari" class="team-photo">
+                    <h3>Naman Kumar Tiwari</h3>
+                    <p>Backend Developer – Server-side Logic, API Integration & Database Management</p>
+                    <a href="https://www.linkedin.com/in/naman-kumar-tiwari-871909362/" class="social-link" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                </div>
+                <div class="team-member animate-on-scroll">
+                    <img src="https://placehold.co/150x150/2a2a2a/ffffff?text=AG" alt="Ayush Gupta" class="team-photo">
+                    <h3>Ayush Gupta</h3>
+                    <p>UI/UX Designer – User Experience, Wireframing & Interactive Prototypes</p>
+                    <a href="https://www.linkedin.com/in/ayush-gupta-85a831277/" class="social-link" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="team section-padding" id="media">
+        <div class="container">
+            <h2 class="section-title">Meet Our <span>Media Team</span></h2>
+            <p class="section-subtitle">The creative minds behind Aura's brand and content</p>
+            <div class="team-grid">
+                <div class="team-member animate-on-scroll">
+                    <img src="https://placehold.co/150x150/2a2a2a/ffffff?text=RS" alt="Ratnadipa Saha" class="team-photo">
+                    <h3>Ratnadipa Saha</h3>
+                    <p>Social Media Head, Video Editing & Content Creation</p>
+                    <a href="#" class="social-link" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                </div>
+                <div class="team-member animate-on-scroll">
+                    <img src="https://placehold.co/150x150/2a2a2a/ffffff?text=SS" alt="Sanchita Singha" class="team-photo">
+                    <h3>Sanchita Singha</h3>
+                    <p>Creative Design & Social Media Strategy</p>
+                    <a href="https://www.linkedin.com/in/sanchita-singha-851448384" class="social-link" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                </div>
+                <div class="team-member animate-on-scroll">
+                    <img src="https://placehold.co/150x150/2a2a2a/ffffff?text=AD" alt="Anshuman Das" class="team-photo">
+                    <h3>Anshuman Das</h3>
+                    <p>Photography, Graphic Design & Visual Branding</p>
+                    <a href="https://www.linkedin.com/in/anshuman-das-866a10383" class="social-link" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="SOS section-padding" id="SOS">
+        <div class="container">
+            <h2 class="section-title">SOS <span>Emergency Alert</span></h2>
+            <p class="section-subtitle">Your safety is our priority. Aura's intelligent emergency detection system is always watching out for you.</p>
+            
+            <div class="sos-feature animate-on-scroll">
+                <div class="sos-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div>
+                    <h3>Automatic Fall Detection</h3>
+                    <p>Our AI monitors your movements and can detect sudden falls or collapses, triggering an immediate alert.</p>
+                </div>
+            </div>
+            
+            <div class="sos-feature animate-on-scroll">
+                <div class="sos-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div>
+                    <h3>Immediate Alert System</h3>
+                    <p>If a potential emergency is detected, Aura will sound an alarm and give you a few seconds to respond before taking action.</p>
+                </div>
+            </div>
+            
+            <div class="sos-feature animate-on-scroll">
+                <div class="sos-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div>
+                    <h3>Emergency Contact Notification</h3>
+                    <p>If you don't respond to the alert, Aura will automatically notify your emergency contacts with your precise GPS location.</p>
+                </div>
+            </div>
+            
+            <p class="animate-on-scroll" style="margin-top: 2rem; text-align: center;">This feature acts as a virtual safety net, giving you peace of mind while you focus on your fitness goals.</p>
+        </div>
+    </section>
+
+    <section class="upgrade-section section-padding" id="upgrade-section">
+        <div class="container">
+            <h2 class="section-title">Unlock Your Full Potential with <span>Aura Premium</span></h2>
+            <p class="section-subtitle">Choose the plan that works best for your fitness journey</p>
+            
+            <div class="pricing-cards">
+                <div class="pricing-card animate-on-scroll">
+                    <h3>Free Plan</h3>
+                    <div class="price">$0 <span>/ forever</span></div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Basic real-time posture correction</li>
+                        <li><i class="fas fa-check"></i> Automatic rep counting (3 workouts/week)</li>
+                        <li><i class="fas fa-check"></i> Basic workout history</li>
+                        <li><i class="fas fa-check"></i> 5 exercise library access</li>
+                        <li><i class="fas fa-times" style="color: #ff6b6b;"></i> No personalized plans</li>
+                        <li><i class="fas fa-times" style="color: #ff6b6b;"></i> Contains ads</li>
+                    </ul>
+                    <button class="secondary-button">Start Free</button>
+                </div>
+                
+                <div class="pricing-card popular animate-on-scroll">
+                    <h3>Premium</h3>
+                    <div class="price">$9.99 <span>/ month</span></div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Advanced AI Form Correction</li>
+                        <li><i class="fas fa-check"></i> Unlimited rep counting</li>
+                        <li><i class="fas fa-check"></i> Detailed progress analytics</li>
+                        <li><i class="fas fa-check"></i> Full exercise library (200+ exercises)</li>
+                        <li><i class="fas fa-check"></i> Personalized workout plans</li>
+                        <li><i class="fas fa-check"></i> Ad-free experience</li>
+                    </ul>
+                    <button class="cta-button" onclick="showModal()">Get Premium</button>
+                </div>
+                
+                <div class="pricing-card animate-on-scroll">
+                    <h3>Annual</h3>
+                    <div class="price">$89.99 <span>/ year</span></div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Everything in Premium</li>
+                        <li><i class="fas fa-check"></i> Save 25% compared to monthly</li>
+                        <li><i class="fas fa-check"></i> Priority customer support</li>
+                        <li><i class="fas fa-check"></i> Early access to new features</li>
+                        <li><i class="fas fa-check"></i> Exclusive workout content</li>
+                        <li><i class="fas fa-check"></i> Family sharing (up to 5 users)</li>
+                    </ul>
+                    <button class="cta-button" onclick="showModal()">Choose Annual</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section section-padding" id="download">
+        <div class="container">
+            <h2 class="cta-title">Ready to Transform Your Fitness Journey?</h2>
+            <p class="section-subtitle">Join thousands of users who are achieving their fitness goals with Aura</p>
+            <div class="cta-buttons">
+                <button class="cta-button">Download Now</button>
+                <button class="secondary-button">Learn More</button>
+            </div>
+            
+            <div class="app-badges">
+                <a href="#" class="app-badge">
+                    <i class="fab fa-apple"></i>
+                    <div>
+                        <div style="font-size: 0.7rem;">Download on the</div>
+                        <div style="font-weight: 600;">App Store</div>
+                    </div>
+                </a>
+                <a href="#" class="app-badge">
+                    <i class="fab fa-google-play"></i>
+                    <div>
+                        <div style="font-size: 0.7rem;">GET IT ON</div>
+                        <div style="font-weight: 600;">Google Play</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <a href="#" class="logo">
+                        <div class="logo-img">A</div>
+                        <span>Aura</span>
+                    </a>
+                    <p>The future of fitness training, powered by AI.</p>
+                    <div class="social-icons">
+                        <a href="https://www.instagram.com/_auraofficials_?igsh=ZGV0cmJrMDBua2J6" class="social-icon" target="_blank" rel="noopener noreferrer">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="social-icon">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-icon">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-icon">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3 class="footer-title">Product</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Features</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">Use Cases</a></li>
+                        <li><a href="#">Testimonials</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3 class="footer-title">Company</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#developers">Developers</a></li>
+                        <li><a href="#media">Media</a></li>
+                        <li><a href="#">Press</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3 class="footer-title">Support</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Community</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 Aura Fitness App. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <a href="#" class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+    
+    <div id="upgradeModalOverlay" class="upgrade-modal-overlay">
+        <div class="upgrade-modal">
+            <button class="close-button" onclick="hideModal()">&times;</button>
+            <div class="modal-left">
+                <h2>Upgrade Your AURA</h2>
+                <p>Choose the plan that fits your fitness goals best.</p>
+                <div class="plan-details">
+                    <h3>Free Plan</h3>
+                    <ul>
+                        <li><i class="fas fa-check"></i> Basic real-time posture correction</li>
+                        <li><i class="fas fa-check"></i> Automatic rep counting (limited workouts)</li>
+                        <li><i class="fas fa-check"></i> Basic workout history</li>
+                    </ul>
+                    <h3>Paid Plan (Premium)</h3>
+                    <ul>
+                        <li><i class="fas fa-check"></i> Advanced AI Form Correction</li>
+                        <li><i class="fas fa-check"></i> Unlimited access to all workouts</li>
+                        <li><i class="fas fa-check"></i> Detailed progress and analytics</li>
+                        <li><i class="fas fa-check"></i> Personalized workout plans</li>
+                        <li><i class="fas fa-check"></i> Priority customer support</li>
+                        <li><i class="fas fa-check"></i> Ad-free experience</li>
+                    </ul>
+                </div>
+                <a href="#" class="cta-button" style="margin-top: 2rem; display: inline-block;">Unlock Premium</a>
+            </div>
+            <div class="modal-right">
+                <img src="https://placehold.co/400x500/2a2a2a/ffffff?text=Aura+Premium" alt="Upgrade to Aura Premium">
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+    <script>
+        // Initialize Swiper for testimonials
+        const swiper = new Swiper('.testimonials-slider', {
+            slidesPerView: 1,
+            spaceBetween: 20,
+            loop: true,
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            breakpoints: {
+                640: {
+                    slidesPerView: 1,
+                },
+                768: {
+                    slidesPerView: 2,
+                },
+                1024: {
+                    slidesPerView: 3,
+                },
+            }
+        });
+
+        // Mobile menu functionality
+        const menuBtn = document.getElementById('menuBtn');
+        const navLinks = document.getElementById('navLinks');
+        const menuOverlay = document.getElementById('menuOverlay');
+        
+        menuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            menuOverlay.classList.toggle('active');
+            menuBtn.innerHTML = navLinks.classList.contains('active') ? 
+                '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+        });
+        
+        menuOverlay.addEventListener('click', () => {
+            navLinks.classList.remove('active');
+            menuOverlay.classList.remove('active');
+            menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+        });
+
+        // Scroll animations
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('.animate-on-scroll');
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('animated');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', animateOnScroll);
+        // Initial call to animate elements in view on page load
+        animateOnScroll();
+
+        // Header scroll effect
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Back to top button
+        const backToTopBtn = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 500) {
+                backToTopBtn.classList.add('visible');
+            } else {
+                backToTopBtn.classList.remove('visible');
+            }
+        });
+
+        backToTopBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Modal functions
+        function showModal() {
+            document.getElementById('upgradeModalOverlay').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function hideModal() {
+            document.getElementById('upgradeModalOverlay').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('upgradeModalOverlay').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('upgradeModalOverlay')) {
+                hideModal();
+            }
+        });
+
+        // Create particles background
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 20;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random properties
+                const size = Math.random() * 20 + 5;
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const delay = Math.random() * 10;
+                const duration = Math.random() * 10 + 15;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${posX}%`;
+                particle.style.top = `${posY}%`;
+                particle.style.animationDelay = `${delay}s`;
+                particle.style.animationDuration = `${duration}s`;
+                
+                container.appendChild(particle);
+            }
+        }
+
+        createParticles();
+    </script>
+</body>
+</html>
